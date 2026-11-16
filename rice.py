@@ -6,24 +6,25 @@ def f0():
 		dig()
 
 def f1():
+	
+	# exploit all clay unti all rock
 	while True:
 		rock = 0
 		
-		# row can
 		for _ in range(WORLD_SIZE):
+			
+			# grow cycle
 			if can_harvest():
 				harvest()
 			elif get_ground_type() == Grounds.Clay:
 				plant(Entities.Rice)
 			elif get_ground_type() == Grounds.Dry_Rice_Terrace:
 				dig()
-				plant(Entities.Rice)
 			elif get_ground_type() == Grounds.Rock:
 				rock += 1
 			move(East)
-			
-		# if all rock(no clay left), exit
-		if rock == WORLD_SIZE:
+
+		if rock >= WORLD_SIZE:
 			break
 	
 

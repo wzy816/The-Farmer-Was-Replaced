@@ -100,6 +100,7 @@ def loop2(f, x0, y0, x1, y1):
 			f(x, y)
 			move(North)
 
+
 def wait_for_all_drones(drones):
 	while True:
 		total = 0
@@ -171,3 +172,71 @@ def to_column_f(cell_f):
 			cell_f()
 			move(North)
 	return f
+	
+def column_spawn_and_wait_all(column_f):
+	move_to(0,0)
+	drones = []
+	for _ in range(WORLD_SIZE-1):
+		drones.append(spawn_drone(column_f))
+		move(East)
+	column_f()
+	move(East)
+	wait_for_all_drones(drones)
+
+def spacing_spawn_and_wait_all(cell_f,spacing):
+	drones = []
+	x = spacing//2
+	while x < WORLD_SIZE:
+		y = spacing//2
+		while y< WORLD_SIZE:
+			move_to(x,y)
+			drones.append(spawn_drone(cell_f))
+			y += spacing
+		x += spacing
+	wait_for_all_drones(drones)
+
+def spacing_loop(cell_f,spacing):
+	ret = []
+	x = spacing //2
+	while x < WORLD_SIZE:
+		y = spacing //2
+		while y < WORLD_SIZE:
+			move_to(x,y)
+			r = cell_f()
+			if r != None:
+				ret.append(r)
+			y+=spacing			
+		x+=spacing
+	return ret
+	
+def sort(arr):
+	return quicksort(arr,0,len(arr)-1)
+
+def reverse(arr):
+	r = []
+	for i in range(len(arr)-1, -1,-1):
+		r.append(arr[i])
+	return r
+	
+def quicksort(arr, low, high):
+	def partition(arr, low, high):
+		pivot = arr[high]  # Choose the last element as the pivot
+		i = low - 1        # Pointer for the smaller element boundary
+	
+		for j in range(low, high):
+			if arr[j] <= pivot:
+				i += 1
+				arr[i], arr[j] = arr[j], arr[i]  # Swap elements
+	
+		# Place the pivot in its correct sorted position
+		arr[i + 1], arr[high] = arr[high], arr[i + 1]
+		return i + 1
+
+	if low < high:
+		# Find the partition index where the pivot belongs
+		pivot_index = partition(arr, low, high)
+		
+		# Recursively sort elements before and after partition
+		quicksort(arr, low, pivot_index - 1)
+		quicksort(arr, pivot_index + 1, high)
+	return arr

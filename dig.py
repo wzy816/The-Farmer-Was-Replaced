@@ -1,6 +1,4 @@
-
 from util import *
-
 def dig_until_clay():
 	while get_ground_type() != Grounds.Clay:
 		dig()

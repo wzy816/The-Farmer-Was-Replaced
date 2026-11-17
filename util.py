@@ -1,3 +1,5 @@
+# plant, harvest, water
+
 def do_water():
 	w = get_water()
 	for _ in range(4-4*w):
@@ -39,7 +41,8 @@ def till_to_grassland():
 	if get_ground_type() != Grounds.Grassland:
 		till()
 
-		
+# move
+
 def move_east_n(n):
 	for _ in range(n):
 		move(East)
@@ -85,22 +88,9 @@ def move_to(x, y, cross_boundary=True):
 		else:
 			move_north_n(WORLD_SIZE +dy)
 
-def loop(f, x0, y0, x1, y1):
-	for x in range(x0, x1):
-		move_to(x,y0)
-		for y in range(y0, y1):
-			f()
-			move(North)
 
 
-def loop2(f, x0, y0, x1, y1):
-	for x in range(x0, x1):
-		move_to(x,y0)
-		for y in range(y0, y1):
-			f(x, y)
-			move(North)
-
-
+# spawn
 def wait_for_all_drones(drones):
 	while True:
 		total = 0
@@ -140,6 +130,7 @@ def row_spawn_and_wait_all(row_f):
 	row_f()
 	move(North)
 	wait_for_all_drones(drones)
+
 
 def column_spawn(column_f):
 	move_to(0,0)
@@ -194,7 +185,24 @@ def spacing_spawn_and_wait_all(cell_f,spacing):
 			y += spacing
 		x += spacing
 	wait_for_all_drones(drones)
+	
+	
+# loop
 
+def loop(f, x0, y0, x1, y1):
+	for x in range(x0, x1):
+		move_to(x,y0)
+		for y in range(y0, y1):
+			f()
+			move(North)
+
+
+def loop2(f, x0, y0, x1, y1):
+	for x in range(x0, x1):
+		move_to(x,y0)
+		for y in range(y0, y1):
+			f(x, y)
+			move(North)
 def spacing_loop(cell_f,spacing):
 	ret = []
 	x = spacing //2
@@ -208,7 +216,9 @@ def spacing_loop(cell_f,spacing):
 			y+=spacing			
 		x+=spacing
 	return ret
-	
+
+# array sort
+
 def sort(arr):
 	return quicksort(arr,0,len(arr)-1)
 
@@ -240,3 +250,40 @@ def quicksort(arr, low, high):
 		quicksort(arr, low, pivot_index - 1)
 		quicksort(arr, pivot_index + 1, high)
 	return arr
+
+
+# dig
+	
+def dig_until(gt):
+	def f():
+		while get_ground_type() != gt:
+			dig()
+	return f
+
+def dig_through(gt):
+	def f():
+		while get_ground_type() == gt:
+			dig()
+	return f
+
+def dig_deep_until(gt, z):
+	def f():
+		while get_pos_z() >= z and get_ground_type() != gt:
+			dig()
+	return f
+
+def dig_deep(z):
+	def f():
+		while get_pos_z() >= z:
+			dig()
+	return f
+	
+	
+	
+def dig_all_until(gt):
+	f = dig_until(gt)
+	row_spawn_and_wait_all(to_row_f(f))
+
+def dig_all_through(gt):
+	f = dig_through(gt)
+	row_spawn_and_wait_all(to_row_f(f))

@@ -1,41 +1,65 @@
+
 from util import *
-from heapq import *
 
-def d0(target_z):
-	def f():
-		while get_pos_z() >= target_z and get_ground_type() != Grounds.Coal:
-			dig()
-	return f
 
-def d1(target_z):
-	def f():
-		while get_pos_z() >= target_z:
-			dig()
-	return f
-
-def m0():
-	if get_pos_z() > z:
-		return get_pos_z()
-
-clear()
-spacing = 8
-z = -4
-while z > -100:
+def dig_coal():
+	dig_all_until(Grounds.Dirt)
 	
-	# dig to z
-	spacing_spawn_and_wait_all(d0(z), spacing)
+	STEP=HALF_WORLD_SIZE//2
+	SPACING=HALF_WORLD_SIZE
 	
-	# peak shallower depths = coal zs
-	zs = set(spacing_loop(m0,spacing))
+	z = get_pos_z()
+	
+	while True:
+		
+		# spacing drill one STEP deep
+		def d0(target_z):
+			def f():
+				while get_pos_z() >= target_z and get_ground_type() == Grounds.Dirt:
+						dig()
+			return f
+		spacing_spawn_and_wait_all(d0(z-STEP), SPACING)
+		
 
-	if len(zs) >0:
-		zs = reverse(sort(list(zs)))
-		print(zs)
-		for _z in zs:
-			grid_spawn_and_wait_all(d1(_z))
-			
-	# dig all above z
-	grid_spawn_and_wait_all(d1(z))
+		# probe
+		def p():
+			return (get_pos_z(), get_ground_type())
 
-	z -= 4
+		coal_depths = []
+		reaching_non_dirt = False
+		for d in spacing_loop(p, SPACING):
+			if d[1] == Grounds.Coal:
+				coal_depths.append(d[0])
+			elif d[1] != Grounds.Dirt:
+				reaching_non_dirt = True
+				
+		# exit when reaching non-dirt
+		if reaching_non_dirt:
+			break
+		
+		# mine coal layers
+		if len(coal_depths)>0:
+			for d in reverse(sort(list(set(coal_depths)))):
+				grid_spawn_and_wait_all(dig_deep(d))
+				
+		# drill everything within STEP
+		grid_spawn_and_wait_all(dig_deep(z-STEP))
+		
+		z = z-STEP	
+		
+	dig_all_through(Grounds.Dirt)
+	
+	
+# clear()
+dig_coal()
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
